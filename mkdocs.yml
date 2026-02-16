@@ -92,7 +92,6 @@ nav:
       - 基础配置: Configuration/index.md
       - 问题疑难: Configuration/FAQ.md
       - Oracle 专区: Configuration/Oracle.md
-      - Docker 专区: Configuration/Docker.md
 
   - 部署: 
       - Komari: Deploy/Komari.md

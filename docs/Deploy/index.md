@@ -1,5 +1,11 @@
 
-## 访问鉴权中间件
+本篇主要用于记录一些常用软件的部署过程, 其中大部分是基于 Docker 和 Docker-compose 部署, 阅读这部分内容需要具备一些 Docker 基础
+
+## Docker中间件
+
+### 访问鉴权中间件
+
+**应用场景**: 不想被爬虫搜索引擎扫到, 不想被自动化脚本滥刷, 只想自己使用但是部署资源没有鉴权功能
 
 基于 anubis , 增加密码鉴权方式和 IP 白名单验证模式
 
@@ -30,12 +36,30 @@ services:
       PASSWORD_BAN_TIME: "900"
       # 白名单有效期
       WHITELIST_TIMEOUT: "3600"
-
+      
   hubproxy:
     image: ghcr.io/sky22333/hubproxy
     container_name: hubproxy
     restart: always
 ```
 
-## Cloudflared
+### Cloudflared
 
+**应用场景**: 域名访问某项服务, 但是不想配置 nginx. 不想开放端口, 服务器无公网 IP
+
+```
+version: '3.8'
+services:
+  tunnel:
+    container_name: cloudflared
+    image: cloudflare/cloudflared:latest
+    restart: unless-stopped
+    command: tunnel run
+    environment:
+      - TUNNEL_TOKEN=你的TOKEN字串 # 貼上 Cloudflare 產生的 Token
+  web:
+    image: nginx # 範例服務
+
+```
+
+**設定路由**：在 Cloudflare 後台將域名指向容器名稱（如上例的 `http://web:80`)
