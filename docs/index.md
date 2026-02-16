@@ -26,7 +26,7 @@ hide:
 
     深入了解各种服务与系统的优化配置。
 
-- :material-shuffle-variant: &nbsp; __[部署][Docker]__
+- :material-shuffle-variant: &nbsp; __[部署][Deploy]__
 
     常用服务的Docker部署。
 
@@ -45,4 +45,4 @@ hide:
 [Command]: ./Command.md
 [Script]: ./Script/Initialization.md
 [Configuration]: ./Configuration/index.md
-
+[Deploy]: ./Deploy/Middleware.md
