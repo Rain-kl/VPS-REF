@@ -94,6 +94,7 @@ nav:
       - Oracle 专区: Configuration/Oracle.md
 
   - 部署: 
+      - Docker中间件: Deploy/Middleware.md
       - Komari: Deploy/Komari.md
       - Vaultwarden: Deploy/Vaultwarden.md
       - BookStack: Deploy/BookStack.md
