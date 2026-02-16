@@ -15,6 +15,8 @@ services:
     ports:
       - "5000:8923"
 #      - "9090:9090"
+	# 如果anubis在反代程序后, 注释掉下面一行
+#	command: ["-use-remote-address"]
     environment:
 	  # 反代地址
       TARGET: "http://hubproxy:5000"
@@ -34,3 +36,6 @@ services:
     container_name: hubproxy
     restart: always
 ```
+
+## Cloudflared
+
