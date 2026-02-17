@@ -1,4 +1,24 @@
 
+## 换源工具
+
+- GNU/Linux 更换系统软件源
+
+```bash
+bash <(curl -sSL https://linuxmirrors.cn/main.sh)
+```
+
+- Docker 安装与换源
+
+```bash
+bash <(curl -sSL https://linuxmirrors.cn/docker.sh)
+```
+
+- Docker 更换镜像加速器
+
+```bash
+bash <(curl -sSL https://linuxmirrors.cn/docker.sh) --only-registry
+```
+
 ## 安装1panel
 
 ```
@@ -120,3 +140,5 @@ crontab -e
 
 - [【配置优化】我拿到VPS服务器必做的那些事](https://linux.do/t/topic/160305)
 - [常见脚本推荐](https://meowvps.com/blog/script/)
+- [LinuxMirrors](https://github.com/SuperManito/LinuxMirrors)
+	
