@@ -27,9 +27,11 @@ bash -c "$(curl -sSL https://resource.fit2cloud.com/1panel/package/v2/quick_star
 
 ## 系统设置
 
+- 常用软件包
+
 ```
 apt update -y
-apt install -y sudo curl wget vim iperf3 tmux screen btop ncdu
+apt install -y sudo curl wget vim iperf3 screen btop ncdu
 
 timedatectl set-timezone Asia/Shanghai
 ```
@@ -121,8 +123,8 @@ fail2ban-client status
 ```
 
 
-### 大杂烩
-#### [DDNS脚本](https://github.com/kkkgo/UE-DDNS)
+## 大杂烩
+### [DDNS脚本](https://github.com/kkkgo/UE-DDNS)
 
 ```
 curl -skLo ue-ddns.sh ddns.03k.org  
