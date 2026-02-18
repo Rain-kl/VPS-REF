@@ -89,6 +89,7 @@ nav:
   - 命令: 
       - CLI 工具: Command/index.md
       - 使用场景: Command/Examples.md
+      - 命令速查: Command/Common.md
   - 集群: Cluster.md
   - 配置:
       - 基础配置: Configuration/index.md
