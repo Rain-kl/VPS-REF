@@ -86,7 +86,9 @@ nav:
   - 脚本:
       - 初始化脚本: Script/Initialization.md
       - 检测脚本: Script/Detection.md
-  - 命令: Command.md
+  - 命令: 
+      - CLI 工具: Command/index.md
+      - 使用场景: Command/Examples.md
   - 集群: Cluster.md
   - 配置:
       - 基础配置: Configuration/index.md

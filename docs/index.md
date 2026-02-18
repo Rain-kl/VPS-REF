@@ -42,7 +42,7 @@ hide:
 > *持续更新中...*
 
 
-[Command]: ./Command.md
+[Command]: ./Command/index.md
 [Script]: ./Script/Initialization.md
 [Configuration]: ./Configuration/index.md
 [Deploy]: ./Deploy/Middleware.md

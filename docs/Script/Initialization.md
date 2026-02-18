@@ -25,21 +25,12 @@ bash <(curl -sSL https://linuxmirrors.cn/docker.sh) --only-registry
 bash -c "$(curl -sSL https://resource.fit2cloud.com/1panel/package/v2/quick_start.sh)"
 ```
 
-## 系统设置
+## 系统优化
 
-- 常用软件包
+- 时区设置
 
 ```
-apt update -y
-apt install -y sudo curl wget vim iperf3 screen btop ncdu
-
 timedatectl set-timezone Asia/Shanghai
-```
-
-- 进阶工具
-
-```
-apt install -y vnstat fd-find ranger
 ```
 
 - 内存优化
