@@ -1,101 +1,112 @@
 
-生成签名
+## 生成签名
+
+运行[脚本](https://raw.githubusercontent.com/Rain-kl/Script/refs/heads/main/gen_android_sign.sh)生成签名, 然后将签名复制到 Github Action Repo Secret 中
+
+## 参考工作流
 
 ```
-#!/usr/bin/env sh  
-set -eu  
-  
-# Generate values for GitHub Actions secrets used by .github/workflows/cust-release.yml  
-# Required secrets:  
-# - RELEASE_KEY_STORE (base64-encoded keystore)  
-# - RELEASE_KEY_ALIAS  
-# - RELEASE_KEY_PASSWORD  
-# - RELEASE_STORE_PASSWORD  
-  
-prompt_default() {  
-  prompt="$1"  
-  default="$2"  
-  printf "%s [%s]: " "$prompt" "$default" >&2  
-  read -r input || true  
-  if [ -n "${input:-}" ]; then  
-    printf "%s" "$input"  
-  else  
-    printf "%s" "$default"  
-  fi  
-}  
-  
-prompt_secret() {  
-  prompt="$1"  
-  printf "%s: " "$prompt" >&2  
-  stty -echo  
-  read -r value || true  
-  stty echo  
-  printf "\n" >&2  
-  printf "%s" "$value"  
-}  
-  
-base64_one_line() {  
-  file="$1"  
-  base64 < "$file" | tr -d '\n\r'  
-}  
-  
-fail() {  
-  printf "Error: %s\n" "$1" >&2  
-  exit 1  
-}  
-  
-SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)  
-REPO_ROOT=$(CDPATH= cd -- "$SCRIPT_DIR/.." && pwd)  
-  
-KEYSTORE_PATH="$(prompt_default "Keystore file path" "$REPO_ROOT/app/key.jks")"  
-RELEASE_KEY_ALIAS="$(prompt_default "RELEASE_KEY_ALIAS" "release")"  
-RELEASE_KEY_PASSWORD="$(prompt_secret "RELEASE_KEY_PASSWORD")"  
-RELEASE_STORE_PASSWORD="$(prompt_secret "RELEASE_STORE_PASSWORD")"  
-  
-[ -n "$RELEASE_KEY_PASSWORD" ] || fail "RELEASE_KEY_PASSWORD cannot be empty"  
-[ -n "$RELEASE_STORE_PASSWORD" ] || fail "RELEASE_STORE_PASSWORD cannot be empty"  
-  
-if [ ! -f "$KEYSTORE_PATH" ]; then  
-  printf "Keystore not found, generating a new one...\n" >&2  
-  command -v keytool >/dev/null 2>&1 || fail "keytool not found. Please install JDK 17+"  
-  
-  DNAME="$(prompt_default "Certificate DName" "CN=Legado, OU=Release, O=Legado, L=NA, S=NA, C=US")"  
-  KEYSTORE_DIR=$(dirname -- "$KEYSTORE_PATH")  
-  mkdir -p "$KEYSTORE_DIR"  
-  
-  keytool -genkeypair -v \  
-    -keystore "$KEYSTORE_PATH" \  
-    -storetype JKS \  
-    -alias "$RELEASE_KEY_ALIAS" \  
-    -keyalg RSA \  
-    -keysize 2048 \  
-    -validity 10000 \  
-    -storepass "$RELEASE_STORE_PASSWORD" \  
-    -keypass "$RELEASE_KEY_PASSWORD" \  
-    -dname "$DNAME" >/dev/null  
-  
-  printf "Generated keystore: %s\n" "$KEYSTORE_PATH" >&2  
-fi  
-  
-RELEASE_KEY_STORE="$(base64_one_line "$KEYSTORE_PATH")"  
-  
-OUTPUT_FILE="$REPO_ROOT/release-secrets.env"  
-cat > "$OUTPUT_FILE" <<EOF  
-RELEASE_KEY_ALIAS=$RELEASE_KEY_ALIAS  
-RELEASE_KEY_PASSWORD=$RELEASE_KEY_PASSWORD  
-RELEASE_STORE_PASSWORD=$RELEASE_STORE_PASSWORD  
-RELEASE_KEY_STORE=$RELEASE_KEY_STORE  
-EOF  
-  
-printf "\nGenerated: %s\n" "$OUTPUT_FILE"  
-printf "Copy these values into GitHub repo secrets:\n\n"  
-cat "$OUTPUT_FILE"  
-  
-if command -v gh >/dev/null 2>&1; then  
-  printf "\nOptional: auto-set secrets via GitHub CLI (in this repo):\n"  
-  printf "  printf '%%s' \"$RELEASE_KEY_ALIAS\" | gh secret set RELEASE_KEY_ALIAS\n"  
-  printf "  printf '%%s' \"$RELEASE_KEY_PASSWORD\" | gh secret set RELEASE_KEY_PASSWORD\n"  
-  printf "  printf '%%s' \"$RELEASE_STORE_PASSWORD\" | gh secret set RELEASE_STORE_PASSWORD\n"  
-  printf "  printf '%%s' \"$RELEASE_KEY_STORE\" | gh secret set RELEASE_KEY_STORE\n"  
-fi
+name: Release
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.set-ver.outputs.version }}
+      prerelease: ${{ steps.set-ver.outputs.prerelease }}
+      sign: ${{ steps.check.outputs.sign }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+
+      - id: set-ver
+        run: |
+          version=$(git describe --tags --always)
+          if git rev-parse -q --verify "refs/tags/$version" >/dev/null; then
+            prerelease=false
+          else
+            git tag "$version"
+            git push origin "refs/tags/$version"
+            prerelease=true
+          fi
+          echo "version=${version}" >> $GITHUB_OUTPUT
+          echo "prerelease=${prerelease}" >> $GITHUB_OUTPUT
+
+      - id: check
+        run: |
+          if [ ! -z "${{ secrets.RELEASE_KEY_STORE }}" ]; then
+            echo "sign=yes" >> $GITHUB_OUTPUT
+          fi
+
+  build:
+    needs: prepare
+    if: ${{ needs.prepare.outputs.sign }}
+    runs-on: ubuntu-latest
+    env:
+      VERSION: ${{ needs.prepare.outputs.version }}
+      PRERELEASE: ${{ needs.prepare.outputs.prerelease }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: 17
+
+      - name: Release Apk Sign
+        run: |
+          echo -e "\n" >> gradle.properties
+          echo RELEASE_KEY_ALIAS='${{ secrets.RELEASE_KEY_ALIAS }}' >> gradle.properties
+          echo RELEASE_KEY_PASSWORD='${{ secrets.RELEASE_KEY_PASSWORD }}' >> gradle.properties
+          echo RELEASE_STORE_PASSWORD='${{ secrets.RELEASE_STORE_PASSWORD }}' >> gradle.properties
+          echo RELEASE_STORE_FILE='./key.jks' >> gradle.properties
+          echo ${{ secrets.RELEASE_KEY_STORE }} | base64 --decode > $GITHUB_WORKSPACE/app/key.jks
+
+      - name: Unify Version Name
+        run: |
+          sed "/def version/c def version = \"${{ env.VERSION }}\"" $GITHUB_WORKSPACE/app/build.gradle -i
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Build With Gradle
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleapprelease --build-cache --parallel --daemon --warning-mode all
+
+      - name: Organize the Files
+        run: |
+          mkdir -p ${{ github.workspace }}/apk/
+          cp -rf ${{ github.workspace }}/app/build/outputs/apk/*/*/*.apk ${{ github.workspace }}/apk/
+
+      - name: Upload App To Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: legado_app
+          path: ${{ github.workspace }}/apk/*.apk
+
+      - name: Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: legado_app_${{ env.VERSION }}
+          tag_name: ${{ env.VERSION }}
+          body_path: ${{ github.workspace }}/CHANGELOG.md
+          draft: false
+          prerelease: ${{ env.PRERELEASE == 'true' }}
+          files: ${{ github.workspace }}/apk/legado_app_*.apk
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
 ```
