@@ -98,6 +98,7 @@ nav:
 
   - 部署: 
       - Docker中间件: Deploy/Middleware.md
+      - 部署注意事项: Deploy/Notes.md
       - Komari: Deploy/Komari.md
       - Vaultwarden: Deploy/Vaultwarden.md
       - BookStack: Deploy/BookStack.md
