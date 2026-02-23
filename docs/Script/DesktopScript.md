@@ -12,4 +12,10 @@ echo "deb [arch=amd64 signed-by=/usr/share/keyrings/google-linux.gpg] http://dl.
 apt-get update
 apt-get install -y google-chrome-stable
 google-chrome --version
+apt-get install -y fonts-noto fonts-noto-cjk fonts-noto-color-emoji
 ```
+
+```
+google-chrome --no-sandbox --disable-dev-shm-usage
+```
+
