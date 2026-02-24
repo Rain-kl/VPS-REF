@@ -25,6 +25,7 @@ services:
       TARGET: "http://hubproxy:5000"
       AUTH_MODE: "password"
       VALID_MODE: "whitelist"
+      DIFFICULTY: "4"
       # 访问密码, AUTH_MODE 需配置为password
       PASSWORD: "12345678"
       # 密码最大可重试次数
@@ -42,6 +43,19 @@ services:
     restart: always
 ```
 
+```
+  anubis:
+    image: ghcr.io/rain-kl/anubis:latest
+    ports:
+      - "59100:8923"
+    environment:
+      # 反代地址
+      TARGET: "http://fast-note-sync-service:9000"
+      AUTH_MODE: "pow"
+      VALID_MODE: "jwt"
+      DIFFICULTY: "4"
+      DEFAULT_FALLBACK_ACTION: "ALLOW"
+```
 ## Cloudflared
 
 **应用场景**: 域名访问某项服务, 但是不想配置 nginx. 不想开放端口, 服务器无公网 IP
