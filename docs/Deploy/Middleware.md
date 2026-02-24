@@ -10,6 +10,24 @@
 
 完整文档查看 [Github](https://github.com/Rain-kl/anubis)
 
+### 示例
+
+- POW 基础模式
+```
+  anubis:
+    image: ghcr.io/rain-kl/anubis:latest
+    ports:
+      - "59100:8923"
+    environment:
+      # 反代地址
+      TARGET: "http://fast-note-sync-service:9000"
+      AUTH_MODE: "pow"
+      VALID_MODE: "jwt"
+      DIFFICULTY: "4"
+      DEFAULT_FALLBACK_ACTION: "ALLOW"
+```
+
+- Password 与 Whitelist 模式
 ```yaml
 version: '3.8'
 
@@ -43,11 +61,14 @@ services:
     restart: always
 ```
 
+- 自定义规则
 ```
   anubis:
     image: ghcr.io/rain-kl/anubis:latest
     ports:
       - "59100:8923"
+    volumes:  
+	  - ./botPolicies.custom.yaml:/data/cfg/botPolicies.custom.yaml:ro
     environment:
       # 反代地址
       TARGET: "http://fast-note-sync-service:9000"
@@ -55,6 +76,30 @@ services:
       VALID_MODE: "jwt"
       DIFFICULTY: "4"
       DEFAULT_FALLBACK_ACTION: "ALLOW"
+      POLICY_FNAME: "/data/cfg/botPolicies.custom.yaml"
+```
+
+```
+# Custom policy for path-based allow/challenge rules.  
+# Rule order matters: first matching ALLOW/CHALLENGE/DENY/WEIGHT returns immediately.  
+  
+bots:  
+  # 1.1) Example allowlist rules for common static/public paths.  
+  - name: allow-healthz  
+    path_regex: ^/healthz$  
+    action: ALLOW  
+  
+  # 2) Example challenge rule: always challenge sensitive paths.  
+  - name: challenge-sensitive-paths  
+    path_regex: ^/(admin|login|signin|wp-admin)(/.*)?$  
+    action: CHALLENGE  
+    challenge:  
+      algorithm: fast  
+      difficulty: 4  
+  
+  # Keep the built-in default rules after custom overrides.  
+  # It Allows such as Googlebot, Cloudflare, and other well-behaved bots, and challenges based on user-agent, geoip, ASN, and system load.  
+  - import: (data)/meta/default-config.yaml
 ```
 ## Cloudflared
 
