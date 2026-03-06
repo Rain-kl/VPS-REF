@@ -52,7 +52,7 @@ bash <(curl -sL kejilion.sh)
 ### BBR 调优
 
 ```jsx
-wget <http://sh.xdmb.xyz/tcp.sh> && bash tcp.sh
+wget http://sh.xdmb.xyz/tcp.sh && bash tcp.sh
 ```
 
 >*ICMP不可达喵*: 
@@ -66,16 +66,16 @@ wget <http://sh.xdmb.xyz/tcp.sh> && bash tcp.sh
 
 - 修改 ssh 端口
 
-修改为1022 端口
+修改为11022 端口
 
 ```
-sudo sed -i 's/^#\?Port 22.*/Port 1022/g' /etc/ssh/sshd_config
+sudo sed -i 's/^#\?Port 22.*/Port 11022/g' /etc/ssh/sshd_config
 ```
 
 - 配置fail2ban
 
 ```
-apt install fail2ban
+apt install -y fail2ban
 vim /etc/fail2ban/jail.local
 ```
 
