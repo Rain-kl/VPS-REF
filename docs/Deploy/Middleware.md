@@ -18,6 +18,7 @@
     image: ghcr.io/rain-kl/anubis:latest
     ports:
       - "59100:8923"
+    restart: always
     environment:
       # 反代地址
       TARGET: "http://fast-note-sync-service:9000"
@@ -54,7 +55,8 @@ services:
       WHITELIST_TIMEOUT: "3600"
       # CHALLENGE/ALLOW, pow 模式如果设置为CHALLENGE,则搜索引擎无法检索
       DEFAULT_FALLBACK_ACTION: "CHALLENGE"
-      
+    restart: always
+    
   hubproxy:
     image: ghcr.io/sky22333/hubproxy
     container_name: hubproxy
@@ -77,6 +79,7 @@ services:
       DIFFICULTY: "4"
       DEFAULT_FALLBACK_ACTION: "ALLOW"
       POLICY_FNAME: "/data/cfg/botPolicies.custom.yaml"
+    restart: always
 ```
 
 ```
