@@ -81,29 +81,17 @@ vim /etc/fail2ban/jail.local
 
 ```
 [DEFAULT]
-#忽略的IP列表,不受设置限制（白名单）
-ignoreip = 127.0.0.1
-#允许ipv6
+ignoreip = 127.0.0.1/8 ::1
 allowipv6 = auto
-#日志修改检测机制（gamin、polling和auto这三种）
 backend = systemd
-#针对各服务的检查配置，如设置bantime、findtime、maxretry和全局冲突，服务优先级大于全局设置
+banaction = nftables-multiport
+
 [sshd]
-#是否激活此项（true/false）
 enabled = true
-#过滤规则filter的名字，对应filter.d目录下的sshd.conf
 filter = sshd
-#ssh端口
 port = ssh
-#动作的相关参数
-action = iptables[name=SSH, port=ssh, protocol=tcp]
-#检测的系统的登陆日志文件
-logpath = /var/log/secure
-#屏蔽时间，单位：秒
 bantime = 86400
-#这个时间段内超过规定次数会被ban掉
 findtime = 86400
-#最大尝试次数
 maxretry = 3
 ```
 
