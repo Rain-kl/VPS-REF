@@ -86,6 +86,7 @@ nav:
   - 脚本:
       - 初始化脚本: Script/Initialization.md
       - 检测脚本: Script/Detection.md
+      - 应用安装脚本: Script/DesktopScript.md
   - 命令: 
       - CLI 工具: Command/index.md
       - 使用场景: Command/Examples.md
